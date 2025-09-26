@@ -1,18 +1,18 @@
-// vite.config.js
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  root: '.',
+  root: '.', // Indica que el root es la carpeta actual (frontend)
   build: {
     outDir: "dist"
   },
   server: {
     port: 3000
   },
-  // SOLUCIÓN FINAL: Definir la variable directamente para producción
+  // SOLUCIÓN GARANTIZADA: Forzar la inyección de la URL del backend en el código compilado
   define: {
-    'process.env.VITE_API_URL': JSON.stringify('https://detodounpocobackend.onrender.com')
+    // Usamos la URL de tu backend y la hacemos una cadena literal en el código
+    'process.env.VITE_API_URL': JSON.stringify('https://detodounpocobackend.onrender.com') 
   }
 });
