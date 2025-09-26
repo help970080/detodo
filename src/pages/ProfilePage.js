@@ -13,7 +13,8 @@ const ProfilePage = () => {
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('disponibles');
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // CORREGIDO: Usamos VITE_API_URL directamente
+  const API_URL = process.env.VITE_API_URL;
 
   useEffect(() => {
     if (!user) {

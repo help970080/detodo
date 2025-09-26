@@ -15,7 +15,8 @@ const ProductDetailPage = () => {
   const [messages, setMessages] = useState([]);
   const [userMessage, setUserMessage] = useState('');
   const [replyToId, setReplyToId] = useState(null);
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // CORREGIDO: Usamos VITE_API_URL directamente
+  const API_URL = process.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProductAndMessages = async () => {

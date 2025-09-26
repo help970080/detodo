@@ -8,11 +8,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Mantenemos VITE_API_URL ya que tu proyecto usa Vite.
-  // El problema es que Render no la inyecta al proceso de 'build'.
+  // CORREGIDO: Usamos VITE_API_URL y eliminamos el fallback de localhost
   const API_URL = process.env.VITE_API_URL; 
 
-  // Este error indica un fallo en la configuración de Render, no en el código.
   if (!API_URL && !loading) {
       console.error("CRITICAL ERROR: API_URL is not defined. Check Render environment variables.");
   }

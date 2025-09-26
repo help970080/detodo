@@ -13,7 +13,8 @@ const AddProductPage = () => {
   const [imageFiles, setImageFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // CORREGIDO: Usamos VITE_API_URL directamente
+  const API_URL = process.env.VITE_API_URL;
   
   useEffect(() => {
     if (user && !user.hasActiveSubscription) {

@@ -17,7 +17,8 @@ const SearchPage = () => {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // CORREGIDO: Usamos VITE_API_URL directamente
+  const API_URL = process.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchBrands = async () => {
