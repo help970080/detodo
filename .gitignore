@@ -1,0 +1,6 @@
+# Dependencias de Node y archivos de compilación
+node_modules/
+dist/
+
+# Variables de entorno de Vite
+.env
