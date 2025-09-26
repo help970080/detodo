@@ -8,9 +8,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Usa una variable de entorno para la URL de la API
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // Se corrige para usar VITE_API_URL (el nombre que usaste en Render) 
+  // y se elimina el fallback de localhost para forzar el uso de la variable.
+  const API_URL = process.env.VITE_API_URL; 
 
+  // Si la URL es undefined (falló la inyección), detenemos la app.
+  if (!API_URL && !loading) {
+      console.error("CRITICAL ERROR: API_URL is not defined. Check Render environment variables.");
+      // Renderiza un error o un mensaje de carga infinita si no hay API_URL
+  }
+    
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -23,6 +30,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     signIn: async (email, password) => {
+      // Usamos la API_URL correcta inyectada por Render
       const response = await fetch(`${API_URL}/api/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       return data;
     },
     signUp: async (email, password, username) => {
+      // Usamos la API_URL correcta inyectada por Render
       const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
