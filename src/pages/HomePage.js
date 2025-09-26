@@ -10,12 +10,14 @@ const HomePage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  // CORREGIDO: Usamos VITE_API_URL directamente
+  const API_URL = process.env.VITE_API_URL; 
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        // Usar la URL de la API
         const response = await fetch(`${API_URL}/api/products`);
         if (!response.ok) {
           throw new Error('No se pudieron cargar los productos');
@@ -30,7 +32,12 @@ const HomePage = () => {
       }
     };
 
-    fetchProducts();
+    if (API_URL) { // Solo intenta buscar si la URL está definida
+        fetchProducts();
+    } else {
+        setError("Error de configuración: La URL de la API no está definida.");
+        setLoading(false);
+    }
   }, [API_URL]);
 
   const handleQuickSearch = (e) => {
