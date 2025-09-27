@@ -1,67 +1,74 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-const AuthCtx = createContext(null);
-const API_URL = import.meta.env.VITE_API_URL;
+// Contexto
+const AuthContext = createContext(null);
 
+// Hook para usar el contexto
+export const useAuth = () => useContext(AuthContext);
+
+// Proveedor de autenticación
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
-  });
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const saveSession = (u, t) => {
-    setUser(u);
-    setToken(t);
-    localStorage.setItem('user', JSON.stringify(u));
-    localStorage.setItem('token', t);
+  // URL de backend desde las variables de entorno
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  // Cargar usuario desde localStorage al iniciar
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (err) {
+      console.error("❌ Error leyendo localStorage:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Función de login
+  const signIn = async (username, password) => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Credenciales inválidas");
+      }
+
+      const data = await res.json();
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+      return data;
+    } catch (err) {
+      console.error("❌ Error al iniciar sesión:", err);
+      throw err;
+    }
   };
 
-  const clearSession = () => {
+  // Función de logout
+  const signOut = () => {
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
-  const signUp = async (email, password, username) => {
-    const res = await fetch(`${API_URL}/api/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, username })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Error en registro');
-    saveSession(data.user, data.token);
-    return { ok: true };
-  };
-
-  const signIn = async (email, password) => {
-    const res = await fetch(`${API_URL}/api/auth/signin`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Error en acceso');
-    saveSession(data.user, data.token);
-    return { ok: true };
-  };
-
-  const signOut = () => clearSession();
-
-  const authFetch = async (url, options = {}) => {
-    const headers = new Headers(options.headers || {});
-    if (token) headers.set('Authorization', `Bearer ${token}`);
-    const res = await fetch(url, { ...options, headers });
-    return res;
+  const value = {
+    user,
+    loading,
+    signIn,
+    signOut,
   };
 
   return (
-    <AuthCtx.Provider value={{ user, token, signUp, signIn, signOut, authFetch }}>
-      {children}
-    </AuthCtx.Provider>
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthCtx);
