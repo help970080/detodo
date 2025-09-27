@@ -8,13 +8,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // CORREGIDO: Usamos VITE_API_URL y eliminamos el fallback de localhost
-  const API_URL = process.env.VITE_API_URL; 
+  // CORREGIDO: Usamos import.meta.env en lugar de process.env
+  const API_URL = import.meta.env.VITE_API_URL;
 
   if (!API_URL && !loading) {
-      console.error("CRITICAL ERROR: API_URL is not defined. Check Render environment variables.");
+    console.error("CRITICAL ERROR: VITE_API_URL is not defined. Check Render environment variables.");
   }
-    
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     signIn: async (email, password) => {
-      // Usamos la API_URL
       const response = await fetch(`${API_URL}/api/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +40,6 @@ export const AuthProvider = ({ children }) => {
       return data;
     },
     signUp: async (email, password, username) => {
-      // Usamos la API_URL
       const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
