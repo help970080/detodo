@@ -8,11 +8,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // CORREGIDO: Usamos import.meta.env en lugar de process.env
-  const API_URL = import.meta.env.VITE_API_URL;
+  // CRA usa process.env.REACT_APP_*
+  const API_URL = process.env.REACT_APP_API_URL;
 
   if (!API_URL && !loading) {
-    console.error("CRITICAL ERROR: VITE_API_URL is not defined. Check Render environment variables.");
+    console.error("CRITICAL ERROR: REACT_APP_API_URL is not defined. Check Render environment variables.");
   }
 
   useEffect(() => {
