@@ -1,69 +1,67 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext();
+const AuthCtx = createContext(null);
+const API_URL = import.meta.env.VITE_API_URL;
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => {
+    const raw = localStorage.getItem('user');
+    return raw ? JSON.parse(raw) : null;
+  });
+  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
 
-  // CRA usa process.env.REACT_APP_*
-  const API_URL = process.env.REACT_APP_API_URL;
+  const saveSession = (u, t) => {
+    setUser(u);
+    setToken(t);
+    localStorage.setItem('user', JSON.stringify(u));
+    localStorage.setItem('token', t);
+  };
 
-  if (!API_URL && !loading) {
-    console.error("CRITICAL ERROR: REACT_APP_API_URL is not defined. Check Render environment variables.");
-  }
+  const clearSession = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  };
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
+  const signUp = async (email, password, username) => {
+    const res = await fetch(`${API_URL}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, username })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Error en registro');
+    saveSession(data.user, data.token);
+    return { ok: true };
+  };
 
-  const value = {
-    user,
-    loading,
-    signIn: async (email, password) => {
-      const response = await fetch(`${API_URL}/api/auth/signin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-      }
-      return data;
-    },
-    signUp: async (email, password, username) => {
-      const response = await fetch(`${API_URL}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, username })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-      }
-      return data;
-    },
-    signOut: () => {
-      localStorage.removeItem('user');
-      setUser(null);
-      navigate('/signin');
-    },
+  const signIn = async (email, password) => {
+    const res = await fetch(`${API_URL}/api/auth/signin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Error en acceso');
+    saveSession(data.user, data.token);
+    return { ok: true };
+  };
+
+  const signOut = () => clearSession();
+
+  const authFetch = async (url, options = {}) => {
+    const headers = new Headers(options.headers || {});
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    const res = await fetch(url, { ...options, headers });
+    return res;
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
+    <AuthCtx.Provider value={{ user, token, signUp, signIn, signOut, authFetch }}>
+      {children}
+    </AuthCtx.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthCtx);
