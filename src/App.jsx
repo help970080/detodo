@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import SearchPage from './pages/SearchPage';
-import AddProductPage from './pages/AddProductPage';
-import ProfilePage from './pages/ProfilePage';
-import SignInPage from './pages/SignInPage';
-import SubscribePage from './pages/SubscribePage';
+import Navbar from './components/Navbar.jsx';
+import HomePage from './pages/HomePage.jsx';
+import ProductDetailPage from './pages/ProductDetailPage.jsx';
+import SearchPage from './pages/SearchPage.jsx';
+import AddProductPage from './pages/AddProductPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import SignInPage from './pages/SignInPage.jsx';
+import SubscribePage from './pages/SubscribePage.jsx';
 import { AuthProvider } from './AuthContext';
 
 export default function App() {
@@ -25,12 +25,15 @@ export default function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/signin" element={<SignInPage />} />
               <Route path="/subscribe" element={<SubscribePage />} />
-              <Route path="/menu" element={
-                <div className="text-center py-20">
-                  <h2 className="text-3xl font-bold text-gray-800">Menú de opciones</h2>
-                  <p className="text-gray-600 mt-4">Más funcionalidades pronto.</p>
-                </div>
-              } />
+              <Route
+                path="/menu"
+                element={
+                  <div className="text-center py-20">
+                    <h2 className="text-3xl font-bold text-gray-800">Menú de opciones</h2>
+                    <p className="text-gray-600 mt-4">Más funcionalidades pronto.</p>
+                  </div>
+                }
+              />
             </Routes>
           </main>
         </div>
